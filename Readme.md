@@ -25,13 +25,14 @@ Find all sequences of **k** consecutive integers, with start `s ∈ [1, N]`, suc
 ---
 
 ## Work Unit Size
-**Chosen work-unit size:** **10,000** starting indices per request (for `N = 1,000,000`).
 
-**How determined:** we use the rule  
-\[
-\text{work\_unit} = \max\left(\left\lfloor \frac{N}{100} \right\rfloor,\, 1000\right)
-\]  
-which targets ~100 chunks overall but never below 1,000. We benchmarked smaller chunks (1k–5k: too much actor/message overhead) and larger chunks (20k–100k: fewer tasks, poorer load balance). **10,000** minimized **REAL TIME** while keeping a strong **CPU/REAL** ratio.
+A dynamic chunk sizing strategy is implemented to efficiently divide the workload:
+
+- The "determine_task_size()" function calculates an optimal chunk size based on the input range.
+- It aims for about 100 chunks with a minimum size of 1000.
+- This approach adapts to different input sizes and system configurations.
+- For small inputs, it creates fewer, larger chunks; for large inputs, it creates more chunks for better parallelization.
+- The Gleam runtime handles scheduling of actors across available CPU cores, maximizing parallel processing.
 
 ---
 
